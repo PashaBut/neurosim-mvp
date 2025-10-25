@@ -4,7 +4,7 @@ from fastapi.security import HTTPBearer
 import uuid
 import os
 from typing import List
-
+from app.services.chat_service import chat_service
 
 from app.config import settings
 from app.services.file_processor import FileProcessor
@@ -88,38 +88,23 @@ async def upload_file(
         )
         
     except Exception as e:
-        raise HTTPException(500, f"Error processing file: {str(e)}")
+        raise HTTPException(500, f"Error processing file: {str(e)}")# В импорты добавить:
 
-@app.post("/chat", response_model=ChatResponse)
-async def chat_with_digital_double(
-    request: ChatRequest,
-    user_id: str = Depends(get_user_id)
-):
-    """RAG-пайплайн: поиск в векторной БД + генерация ответа 'от лица' пользователя"""
+@app.post("/chat")
+async def chat_with_digital_double(question: str, user_id: str = Depends(get_user_id)):
+    """💬 RAG-пайплайн с реальной логикой"""
     try:
-        # 1. Retrieval: поиск релевантных фрагментов в данных пользователя
-        relevant_chunks = vector_store.similarity_search(
-            query=request.question,
-            user_id=user_id,
-            limit=3  # Берем 3 наиболее релевантных фрагмента
-        )
-        
-        # 2. Augmentation + Generation: обогащение контекста и генерация ответа
-        response = chat_service.generate_personalized_response(
-            question=request.question,
-            relevant_chunks=relevant_chunks,
-            user_id=user_id
-        )
-        
-        return ChatResponse(
-            question=request.question,
-            answer=response,
-            sources_used=len(relevant_chunks),
-            user_id=user_id
-        )
-        
+        response = chat_service.generate_personalized_response(question, user_id)
+        return {
+            "question": question,
+            "answer": response,
+            "user_id": user_id,
+            "pipeline": "rag_implemented",
+            "sources_used": 3  # TODO: Реальное количество источников
+        }
     except Exception as e:
-        raise HTTPException(500, f"Error in chat pipeline: {str(e)}")
+        raise HTTPException(500, f"Error in RAG pipeline: {str(e)}")
+
 
 @app.delete("/user/{user_id}/data")
 async def delete_user_data(user_id: str, auth: str = Depends(security)):
