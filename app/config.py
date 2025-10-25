@@ -4,17 +4,19 @@ from dotenv import load_dotenv
 load_dotenv()
 
 class Settings:
-    OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+    # Yandex Cloud settings
+    YANDEX_API_KEY = os.getenv("YANDEX_API_KEY")
+    YANDEX_FOLDER_ID = os.getenv("YANDEX_FOLDER_ID")
+    
+    # Vector database
     CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH", "./data/chroma_db")
     
-    # Настройки для обработки текста
+    # Text processing
     CHUNK_SIZE = 1000
     CHUNK_OVERLAP = 200
-    
-    # Модель для эмбеддингов (легкая и быстрая)
     EMBEDDING_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
     
-    # Модель для чата
-    CHAT_MODEL = "gpt-4-1106-preview"  # Более дешевая и быстрая версия GPT-4
+    # Model settings
+    YANDEX_GPT_MODEL = "yandexgpt"
 
 settings = Settings()
