@@ -158,4 +158,4 @@ async def process_file_background(file_id: str, user_id: str, encrypted_content:
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8080)
